@@ -1,0 +1,23 @@
+*, *::after, *::before{
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		border: none;
+		outline: none;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 16px;
+
+		--bg: #1D1B23; 
+		--pencilValue: #667556;
+		--value: #B6BF91;
+		--border: #434F3D;
+		--text: #EDECD3;
+}
+
+#app{
+		background-color: var(--bg);
+		height: 100vh;
+		width: 100vw;
+		margin: auto;
+}
