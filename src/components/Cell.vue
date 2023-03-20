@@ -8,6 +8,7 @@ interface Props {
 		column: number,
 		isPencil: boolean,
 		isSelected: boolean,
+		isModifiable: boolean,
 };
 
 const props : Props = defineProps<Props>();
@@ -15,7 +16,7 @@ const props : Props = defineProps<Props>();
 const state : Props = reactive(props);
 
 const emit = defineEmits<{
-		(e: 'select', row: number, column: number): void
+		(e: 'select', row: number, column: number, isModifiable: boolean): void
 }>();
 
 </script> 
@@ -23,7 +24,7 @@ const emit = defineEmits<{
 <template>
 <div 
 		:class="['cell', {'selected': state.isSelected}]"
-		@click="$emit('select', state.row, state.column)"
+		@click="$emit('select', state.row, state.column, state.isModifiable)"
 >
 		<p
 				:class="{pencil: state.isPencil, pen: !state.isPencil}"

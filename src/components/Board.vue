@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { ref, Ref, reactive, onUpdated } from 'vue';
+import { ref, Ref, reactive, onUpdated, defineProps } from 'vue';
 import Cell from './Cell.vue';
 import { defaultBooleanArray, blankNumberArray, blankBooleanArray } from "../utils/defaultValue";
 import { generateParsedPuzzle } from "../utils/sudokuHandlers";
+import type { PuzzleLevel } from '../utils/sudokuHandlers';
 
 export type SudokuNumber = -1|1|2|3|4|5|6|7|8|9;
 interface SelectedCell {
 		row: number,
 		column: number
 };
+
+interface Props{
+		level: PuzzleLevel
+};
+
+const props = defineProps<Props>();
 
 const usePencil = ref(false);
 const selectedCell : Ref<SelectedCell> = ref({row: -1, column: -1});
@@ -26,19 +33,27 @@ const values : SudokuNumber[] = [1,2,3,4,5,6,7,8,9];
 
 const numbers : SudokuNumber[][] = reactive(blankNumberArray());
 const isPencil : boolean[][] = reactive(blankBooleanArray());
+const isModifiable : boolean[][] = reactive(blankBooleanArray());
 
-const default_nums = generateParsedPuzzle(2);
+const parsed_puzzle = generateParsedPuzzle(props.level);
+const default_nums = parsed_puzzle[0];
 const default_pencils = defaultBooleanArray();
+const default_modifiable_state = parsed_puzzle[1];
 
 for(let i = 0; i < numbers.length; i++){
 		for(let j = 0; j < numbers[i].length; j++){
 				numbers[i][j] = default_nums[i][j];
 				isPencil[i][j] = default_pencils[i][j];
+				isModifiable[i][j] = default_modifiable_state[i][j];
 		}
 }
 
-const changeValue = function(row: number, column: number, value: SudokuNumber): void {
+const changeValue = function(row: number, column: number, isModifiable: boolean, value: SudokuNumber): void {
 		if(selectedCell.value.row === -1 || selectedCell.value.column === -1) return;
+		else if(isModifiable === false){
+				selectedCell.value = {row: -1, column: -1};
+				return;
+		};
 		numbers[row][column] = value;
 		isPencil[row][column] = usePencil.value;
 		selectedCell.value = {row: -1, column: -1};
@@ -129,6 +144,7 @@ onUpdated(() => {
 						:row="key"
 						:column="cell_key"
 						:isPencil="isPencil[key][cell_key]"
+						:is-modifiable="isModifiable[key][cell_key]"
 						:isSelected="selectedCell.row == key && selectedCell.column == cell_key"
 						@select="(row, column) => selectCell(row, column)"
 				/>
@@ -142,12 +158,12 @@ onUpdated(() => {
 		<button
 				v-for="value in values"
 				key="value"
-				@click="() => changeValue(selectedCell.row, selectedCell.column, value)"
+				@click="() => changeValue(selectedCell.row, selectedCell.column, isModifiable[selectedCell.row][selectedCell.column], value)"
 		>{{ value }}</button>
 
 		<button
-				@click="() => changeValue(selectedCell.row, selectedCell.column, -1)"
-		>Clear Cell</button>
+				@click="() => changeValue(selectedCell.row, selectedCell.column, isModifiable[selectedCell.row][selectedCell.column], -1)"
+		>X</button>
 </div>
 </template>
 
